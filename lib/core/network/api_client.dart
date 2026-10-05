@@ -138,9 +138,14 @@ class ApiClient {
       } else if (error.type == DioExceptionType.connectionError) {
         throw Exception('Error de conexión a internet');
       } else if (error.type == DioExceptionType.badResponse) {
-        throw Exception(
-          error.response?.data['message'] ?? 'Error en el servidor',
-        );
+        final data = error.response?.data;
+        String message = 'Error en el servidor';
+        if (data is Map) {
+          message = data['message'] ?? data['detail'] ?? data['error'] ?? message;
+        } else if (data is String && data.isNotEmpty) {
+          message = data;
+        }
+        throw Exception(message);
       }
       return handler.next(error);
     },

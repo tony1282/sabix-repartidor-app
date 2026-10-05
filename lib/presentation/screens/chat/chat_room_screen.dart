@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/config/app_colors.dart';
 import '../../../core/providers/chat_room_provider.dart';
 import '../../../core/services/chat_socket_service.dart';
 import 'widgets/chat_input.dart';
@@ -61,9 +63,25 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
     final isClosed = room.conversation?.isActive == false;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) context.go('/chats');
+      },
+      child: Scaffold(
       appBar: AppBar(
-        title: Text('Chat · Pedido #${widget.orderId}'),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.go('/chats'),
+        ),
+        title: Text('Pedido #${widget.orderId}'),
+        foregroundColor: Colors.white,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: AppColors.primaryGradient,
+          ),
+        ),
         actions: [
           if (room.connectionState == ChatSocketState.reconnecting ||
               room.connectionState == ChatSocketState.connecting)
@@ -84,19 +102,20 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           ),
         ],
       ),
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
           if (room.typingUsernames.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '${room.typingUsernames.first} está escribiendo…',
-                  style: const TextStyle(
-                    fontStyle: FontStyle.italic,
-                    fontSize: 12,
-                  ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              color: AppColors.primary.withOpacity(0.06),
+              child: Text(
+                '${room.typingUsernames.first} esta escribiendo...',
+                style: const TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontSize: 12,
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -104,10 +123,20 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             child: room.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : room.error != null
-                ? Center(child: Text(room.error!))
+                ? Center(
+                    child: Text(
+                      room.error!,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  )
                 : ListView.builder(
                     controller: _scrollController,
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 8,
+                    ),
                     itemCount: room.messages.length,
                     itemBuilder: (_, i) => MessageBubble(
                       message: room.messages[i],
@@ -122,6 +151,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

@@ -6,6 +6,7 @@ import '../../../core/config/app_colors.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../models/user_model.dart';
 import '../../routes/app_routes.dart';
+import '../../widgets/app_bottom_nav.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -15,26 +16,21 @@ class ProfileScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          // ✅ Botón físico de retroceso → ir a Home
-          context.go(AppRouter.home);
-        }
+        if (!didPop) context.go(AppRouter.home);
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text('Mi perfil'),
+          foregroundColor: Colors.white,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: AppColors.primaryGradient,
             ),
           ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            onPressed: () => context.go(AppRouter.home),
-            tooltip: 'Volver al inicio',
-          ),
         ),
+        bottomNavigationBar: const AppBottomNav(currentIndex: 2),
         body: Consumer<AuthProvider>(
           builder: (context, auth, _) {
             final user = auth.currentUser ?? UserModel(username: 'Repartidor');
@@ -49,40 +45,42 @@ class ProfileScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
+                    // Avatar y nombre
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.border),
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.cardShadow,
-                            blurRadius: 16,
-                            offset: const Offset(0, 8),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
                       child: Column(
                         children: [
                           Container(
-                            width: 82,
-                            height: 82,
-                            decoration: BoxDecoration(
+                            width: 80,
+                            height: 80,
+                            decoration: const BoxDecoration(
                               gradient: AppColors.primaryGradient,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.person_rounded,
-                              size: 38,
+                              size: 36,
                               color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 12),
                           Text(
                             displayName,
                             style: const TextStyle(
-                              fontSize: 22,
+                              fontSize: 20,
                               fontWeight: FontWeight.w800,
                               color: AppColors.textPrimary,
                             ),
@@ -91,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
                           Text(
                             '@${user.username}',
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -99,13 +97,18 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    // Datos del perfil
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(18),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.border, width: 1),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: Column(
                         children: [
@@ -114,16 +117,19 @@ class ProfileScreen extends StatelessWidget {
                             label: 'Correo',
                             value: user.email ?? 'Sin correo',
                           ),
+                          _Divider(),
                           _ProfileItem(
                             icon: Icons.phone_rounded,
-                            label: 'Teléfono',
-                            value: user.phone ?? 'Sin teléfono',
+                            label: 'Telefono',
+                            value: user.phone ?? 'Sin telefono',
                           ),
+                          _Divider(),
                           _ProfileItem(
                             icon: Icons.directions_bike_rounded,
-                            label: 'Vehículo',
+                            label: 'Vehiculo',
                             value: user.vehicleType ?? 'Moto',
                           ),
+                          _Divider(),
                           _ProfileItem(
                             icon: Icons.confirmation_number_rounded,
                             label: 'Placa',
@@ -133,12 +139,13 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
+
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         onPressed: () => _showLogoutDialog(context),
                         icon: const Icon(Icons.logout_rounded),
-                        label: const Text('Cerrar sesión'),
+                        label: const Text('Cerrar sesion'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.error,
                           side: const BorderSide(
@@ -147,7 +154,7 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                       ),
@@ -167,8 +174,8 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Deseas salir de tu cuenta?'),
+        title: const Text('Cerrar sesion'),
+        content: const Text('Deseas salir de tu cuenta?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -179,18 +186,23 @@ class ProfileScreen extends StatelessWidget {
               Navigator.pop(context);
               final auth = context.read<AuthProvider>();
               await auth.logout();
-              if (context.mounted) {
-                context.go(AppRouter.login);
-              }
+              if (context.mounted) context.go(AppRouter.login);
             },
             child: const Text(
-              'Cerrar sesión',
+              'Cerrar sesion',
               style: TextStyle(color: AppColors.error),
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(height: 1, color: AppColors.border);
   }
 }
 
@@ -208,16 +220,16 @@ class _ProfileItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.primary.withOpacity(0.10),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
+            child: Icon(icon, color: AppColors.primary, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -227,7 +239,7 @@ class _ProfileItem extends StatelessWidget {
                 Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -238,7 +250,7 @@ class _ProfileItem extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],

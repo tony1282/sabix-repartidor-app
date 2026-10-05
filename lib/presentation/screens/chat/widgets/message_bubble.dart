@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/config/app_colors.dart';
 import '../../../../domain/entities/chat_message.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -10,11 +11,9 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (message.isSystem) return _system(context);
+    if (message.isSystem) return _system();
 
     final isMine = message.isMine;
-    final bg = isMine ? Colors.blue[600] : Colors.grey[200];
-    final fg = isMine ? Colors.white : Colors.black87;
 
     return Align(
       alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
@@ -23,14 +22,31 @@ class MessageBubble extends StatelessWidget {
             ? () => onDelete!(message.id)
             : null,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.75,
+          margin: EdgeInsets.only(
+            top: 2,
+            bottom: 2,
+            left: isMine ? 64 : 12,
+            right: isMine ? 12 : 64,
           ),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
           decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(14),
+            color: isMine ? AppColors.primary : AppColors.surface,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(16),
+              topRight: const Radius.circular(16),
+              bottomLeft: Radius.circular(isMine ? 16 : 4),
+              bottomRight: Radius.circular(isMine ? 4 : 16),
+            ),
+            border: isMine
+                ? null
+                : Border.all(color: AppColors.border),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: isMine
@@ -38,34 +54,47 @@ class MessageBubble extends StatelessWidget {
                 : CrossAxisAlignment.start,
             children: [
               if (!isMine)
-                Text(
-                  message.senderName,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey[700],
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    message.senderName,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
                   ),
                 ),
               if (message.replyTo != null)
                 Container(
                   margin: const EdgeInsets.only(bottom: 6),
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(6),
+                    color: isMine
+                        ? Colors.white.withOpacity(0.15)
+                        : AppColors.background,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     '${message.replyTo!.senderName}: ${message.replyTo!.content}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontStyle: FontStyle.italic,
+                      color: isMine ? Colors.white70 : AppColors.textSecondary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              Text(message.content, style: TextStyle(color: fg)),
-              const SizedBox(height: 2),
+              Text(
+                message.content,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isMine ? Colors.white : AppColors.textPrimary,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 4),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -73,7 +102,7 @@ class MessageBubble extends StatelessWidget {
                     _fmt(message.createdAt),
                     style: TextStyle(
                       fontSize: 10,
-                      color: isMine ? Colors.white70 : Colors.black45,
+                      color: isMine ? Colors.white60 : AppColors.textLight,
                     ),
                   ),
                   if (isMine && message.isOptimistic) ...[
@@ -83,7 +112,7 @@ class MessageBubble extends StatelessWidget {
                       height: 10,
                       child: CircularProgressIndicator(
                         strokeWidth: 1.2,
-                        color: Colors.white70,
+                        color: Colors.white60,
                       ),
                     ),
                   ],
@@ -96,20 +125,24 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _system(BuildContext context) {
+  Widget _system() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
           decoration: BoxDecoration(
-            color: Colors.grey[300],
+            color: AppColors.borderLight,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
             message.content,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
+            style: const TextStyle(
+              fontSize: 11,
+              fontStyle: FontStyle.italic,
+              color: AppColors.textSecondary,
+            ),
           ),
         ),
       ),

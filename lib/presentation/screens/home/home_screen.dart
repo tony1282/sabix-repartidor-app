@@ -1,4 +1,3 @@
-import '../../routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +5,8 @@ import '../../../core/config/app_colors.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/delivery_provider.dart';
 import '../../../core/providers/notification_provider.dart';
+import '../../routes/app_routes.dart';
+import '../../widgets/app_bottom_nav.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Sabix Repartidor'),
         foregroundColor: Colors.white,
         flexibleSpace: Container(
@@ -58,10 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined),
-                    onPressed: () {
-                      debugPrint('🔔 Navegando a notificaciones');
-                      context.goNamed('notifications'); // ✅ go, no push
-                    },
+                    onPressed: () => context.goNamed('notifications'),
                   ),
                   if (unreadCount > 0)
                     Positioned(
@@ -94,48 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        backgroundColor: AppColors.surface,
-        elevation: 12,
-        onTap: (index) {
-          switch (index) {
-            case 1:
-              context.go('/deliveries');
-              break;
-            case 2:
-              context.goNamed('profile'); // ✅ go, no push
-              break;
-            case 3:
-              context.go('/settings');
-              break;
-            default:
-              context.go('/home');
-              break;
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Inicio',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_rounded),
-            label: 'Pedidos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
-            label: 'Perfil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_rounded),
-            label: 'Config',
-          ),
-        ],
-      ),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 0),
       body: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           if (!auth.isAuthenticated) {
@@ -145,252 +103,226 @@ class _HomeScreenState extends State<HomeScreen> {
             return const SizedBox.shrink();
           }
 
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 700;
-
-              return SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primary, AppColors.primaryLight],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.22),
-                            blurRadius: 22,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
+          return RefreshIndicator(
+            onRefresh: () async {
+              await context.read<DeliveryProvider>().loadAssignedOrders();
+              await context.read<NotificationProvider>().loadUnreadCount();
+            },
+            color: AppColors.primary,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Banner de bienvenida
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      '¡Hola Repartidor!',
-                                      style: TextStyle(
-                                        fontSize: 26,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      auth.currentUser?.displayName ??
-                                          'Usuario',
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.white70,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.16),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: const Icon(
-                                  Icons.motorcycle_rounded,
-                                  color: Colors.white,
-                                  size: 26,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 18),
-                          Consumer<DeliveryProvider>(
-                            builder: (context, deliveryProvider, _) {
-                              final isTracking = deliveryProvider.isTracking;
-                              final hasActiveOrder =
-                                  deliveryProvider.hasActiveOrder;
-                              return Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.14),
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        isTracking
-                                            ? Icons.location_on_rounded
-                                            : Icons.location_off_rounded,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        isTracking
-                                            ? (hasActiveOrder
-                                                  ? 'Rastreando tu entrega'
-                                                  : 'Disponible para pedidos')
-                                            : 'Ubicación desactivada',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      'Pedidos activos',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      '4',
-                                      style: TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      'Ganancias hoy',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      '\$42,500',
-                                      style: TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Resumen rápido',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        SizedBox(
-                          width: isWide
-                              ? (constraints.maxWidth - 48) / 2
-                              : constraints.maxWidth - 0,
-                          child: const _StatusCard(
-                            title: 'Pendientes',
-                            value: '2',
-                            color: Colors.orange,
-                          ),
-                        ),
-                        SizedBox(
-                          width: isWide
-                              ? (constraints.maxWidth - 48) / 2
-                              : constraints.maxWidth - 0,
-                          child: const _StatusCard(
-                            title: 'En camino',
-                            value: '1',
-                            color: Colors.blue,
-                          ),
-                        ),
-                        SizedBox(
-                          width: isWide
-                              ? (constraints.maxWidth - 48) / 2
-                              : constraints.maxWidth - 0,
-                          child: const _StatusCard(
-                            title: 'Entregados',
-                            value: '6',
-                            color: Colors.green,
-                          ),
-                        ),
-                        SizedBox(
-                          width: isWide
-                              ? (constraints.maxWidth - 48) / 2
-                              : constraints.maxWidth - 0,
-                          child: const _StatusCard(
-                            title: 'A tiempo',
-                            value: '5',
-                            color: AppColors.primary,
-                          ),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.22),
+                          blurRadius: 22,
+                          offset: const Offset(0, 12),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    _QuickActionCard(
-                      title: 'Pedidos asignados',
-                      subtitle:
-                          'Revisa tus entregas en curso y actualiza su estado.',
-                      buttonText: 'Ver pedidos asignados',
-                      buttonColor: AppColors.primary,
-                      icon: Icons.assignment_rounded,
-                      onPressed: () {
-                        debugPrint('🔵 Botón "Ver pedidos" presionado');
-                        context.goNamed('deliveries'); // ✅ go, no push
-                      },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Hola Repartidor',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    auth.currentUser?.displayName ?? 'Usuario',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.16),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(
+                                Icons.motorcycle_rounded,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Consumer<DeliveryProvider>(
+                          builder: (context, deliveryProvider, _) {
+                            final isTracking = deliveryProvider.isTracking;
+                            final hasActiveOrder =
+                                deliveryProvider.hasActiveOrder;
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.14),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    isTracking
+                                        ? Icons.location_on_rounded
+                                        : Icons.location_off_rounded,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    isTracking
+                                        ? (hasActiveOrder
+                                              ? 'Rastreando tu entrega'
+                                              : 'Disponible para pedidos')
+                                        : 'Ubicacion desactivada',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Acciones rapidas
+                  const Text(
+                    'Acciones rapidas',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionTile(
+                          icon: Icons.assignment_rounded,
+                          label: 'Mis pedidos',
+                          color: AppColors.primary,
+                          onTap: () => context.goNamed('deliveries'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _ActionTile(
+                          icon: Icons.search_rounded,
+                          label: 'Disponibles',
+                          color: AppColors.secondary,
+                          onTap: () => context.go('/available-orders'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _ActionTile(
+                          icon: Icons.chat_bubble_outline_rounded,
+                          label: 'Mensajes',
+                          color: AppColors.info,
+                          onTap: () => context.go('/chats'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Resumen
+                  const Text(
+                    'Resumen del dia',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: _StatCard(
+                          title: 'Pendientes',
+                          value: '2',
+                          color: Colors.orange,
+                          icon: Icons.hourglass_empty_rounded,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _StatCard(
+                          title: 'En camino',
+                          value: '1',
+                          color: Colors.blue,
+                          icon: Icons.delivery_dining_rounded,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: _StatCard(
+                          title: 'Entregados',
+                          value: '6',
+                          color: Colors.green,
+                          icon: Icons.check_circle_outline_rounded,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: _StatCard(
+                          title: 'A tiempo',
+                          value: '5',
+                          color: AppColors.primary,
+                          icon: Icons.timer_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
@@ -398,18 +330,75 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ============================================
-// WIDGET: Tarjeta de estadísticas
-// ============================================
-class _StatusCard extends StatelessWidget {
+class _ActionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ActionTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.cardShadow,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
   final String title;
   final String value;
   final Color color;
+  final IconData icon;
 
-  const _StatusCard({
+  const _StatCard({
     required this.title,
     required this.value,
     required this.color,
+    required this.icon,
   });
 
   @override
@@ -418,12 +407,12 @@ class _StatusCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border, width: 1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: AppColors.cardShadow,
-            blurRadius: 12,
+            blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],
@@ -431,14 +420,14 @@ class _StatusCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(12),
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.circle, color: color, size: 18),
+            child: Icon(icon, color: color, size: 18),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,108 +435,20 @@ class _StatusCard extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
                     color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: color,
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickActionCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String buttonText;
-  final Color buttonColor;
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  const _QuickActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.buttonText,
-    required this.buttonColor,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.cardShadow,
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: buttonColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: buttonColor, size: 24),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: onPressed,
-              icon: Icon(icon),
-              label: Text(buttonText),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: buttonColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                elevation: 2,
-                shadowColor: buttonColor.withValues(alpha: 0.26),
-              ),
             ),
           ),
         ],
