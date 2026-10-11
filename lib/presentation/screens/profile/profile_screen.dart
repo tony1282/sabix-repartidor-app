@@ -7,6 +7,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../models/user_model.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/responsive_content.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -42,9 +43,12 @@ class ProfileScreen extends StatelessWidget {
 
             return SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
+                child: ResponsiveContent(
+                  maxWidth: 680,
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+                  child: FadeSlideIn(
+                    child: Column(
+                      children: [
                     // Avatar y nombre
                     Container(
                       width: double.infinity,
@@ -159,7 +163,9 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
               ),
             );
