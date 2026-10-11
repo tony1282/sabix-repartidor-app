@@ -9,6 +9,7 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    visualDensity: VisualDensity.adaptivePlatformDensity,
     
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
@@ -125,7 +126,7 @@ class AppTheme {
         maximumSize: const Size(double.infinity, 56),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
         ),
         textStyle: const TextStyle(
           fontSize: 16,
@@ -144,7 +145,7 @@ class AppTheme {
         maximumSize: const Size(double.infinity, 56),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
         ),
         side: const BorderSide(color: AppColors.primary, width: 1.5),
         textStyle: const TextStyle(
@@ -174,23 +175,23 @@ class AppTheme {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(color: AppColors.inputBorder),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(color: AppColors.inputBorder),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(color: AppColors.inputFocus, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(color: AppColors.inputError, width: 2),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(color: AppColors.inputError, width: 2),
       ),
       
@@ -222,13 +223,14 @@ class AppTheme {
     // ===== CARDS =====
     cardTheme: CardThemeData(
       color: AppColors.card,
-      elevation: 2,
+      elevation: 0,
       shadowColor: AppColors.cardShadow,
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
       ),
       clipBehavior: Clip.antiAlias,
-      margin: const EdgeInsets.all(8),
+      margin: EdgeInsets.zero,
     ),
     
     // ===== CHIPS =====
@@ -294,6 +296,8 @@ class AppTheme {
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
       behavior: SnackBarBehavior.floating,
+      elevation: 6,
+      insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
     ),
     
     // ===== BADGE =====
@@ -303,6 +307,17 @@ class AppTheme {
       textStyle: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
     ),
     
+    // ===== TRANSICIONES =====
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+        TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+      },
+    ),
+
     // ===== CHECKBOX =====
     checkboxTheme: CheckboxThemeData(
       fillColor: WidgetStateProperty.resolveWith((states) {
@@ -373,7 +388,7 @@ class AppTheme {
       color: const Color(0xFF1E293B),
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
       ),
     ),
     
@@ -381,15 +396,15 @@ class AppTheme {
       filled: true,
       fillColor: const Color(0xFF1E293B),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(color: Color(0xFF334155)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(color: Color(0xFF334155)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(color: AppColors.primaryLight, width: 2),
       ),
       labelStyle: const TextStyle(color: Color(0xFF94A3B8)),
