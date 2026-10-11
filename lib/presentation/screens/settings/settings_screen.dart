@@ -37,50 +37,52 @@ class SettingsScreen extends StatelessWidget {
               child: FadeSlideIn(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                const Text(
-                  'General',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
-                    letterSpacing: 0.5,
-                  ),
+                  children: const [
+                    Text(
+                      'General',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    _SettingsTile(
+                      title: 'Modo de entrega',
+                      subtitle: 'Disponible proximamente',
+                      icon: Icons.delivery_dining_rounded,
+                    ),
+                    _SettingsTile(
+                      title: 'Notificaciones',
+                      subtitle: 'Sincronizacion y prioridad',
+                      icon: Icons.notifications_active_rounded,
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Soporte',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    _SettingsTile(
+                      title: 'Ayuda',
+                      subtitle: 'Centro de ayuda y soporte',
+                      icon: Icons.help_outline_rounded,
+                    ),
+                    _SettingsTile(
+                      title: 'Acerca de',
+                      subtitle: 'Version 1.0.0',
+                      icon: Icons.info_outline_rounded,
+                      showChevron: false,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                _SettingsTile(
-                  title: 'Modo de entrega',
-                  subtitle: 'Disponible proximamente',
-                  icon: Icons.delivery_dining_rounded,
-                ),
-                _SettingsTile(
-                  title: 'Notificaciones',
-                  subtitle: 'Sincronizacion y prioridad',
-                  icon: Icons.notifications_active_rounded,
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Soporte',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _SettingsTile(
-                  title: 'Ayuda',
-                  subtitle: 'Centro de ayuda y soporte',
-                  icon: Icons.help_outline_rounded,
-                ),
-                _SettingsTile(
-                  title: 'Acerca de',
-                  subtitle: 'Version 1.0.0',
-                  icon: Icons.info_outline_rounded,
-                  showChevron: false,
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -108,24 +110,32 @@ class _SettingsTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.cardShadow,
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           onTap: () {},
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.10),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.primary.withOpacity(0.09),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: AppColors.primary, size: 20),
                 ),
@@ -138,11 +148,11 @@ class _SettingsTile extends StatelessWidget {
                         title,
                         style: const TextStyle(
                           fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Text(
                         subtitle,
                         style: const TextStyle(
@@ -156,12 +166,10 @@ class _SettingsTile extends StatelessWidget {
                 if (showChevron)
                   const Icon(
                     Icons.chevron_right_rounded,
-                    color: AppColors.textSecondary,
-                    size: 20,
+                    color: AppColors.textLight,
+                    size: 21,
                   ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
         ),
