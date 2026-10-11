@@ -7,6 +7,7 @@ import '../../../core/providers/delivery_provider.dart';
 import '../../../core/providers/notification_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/responsive_content.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -111,10 +112,13 @@ class _HomeScreenState extends State<HomeScreen> {
             color: AppColors.primary,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: ResponsiveContent(
+                maxWidth: 820,
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+                child: FadeSlideIn(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                   // Banner de bienvenida
                   Container(
                     width: double.infinity,
@@ -320,7 +324,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
           );
