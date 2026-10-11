@@ -20,59 +20,54 @@ class AppBottomNav extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
-            blurRadius: 22,
-            offset: const Offset(0, -6),
+            blurRadius: 18,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
       child: SafeArea(
         top: false,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 7, 8, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _NavItem(
-                      icon: Icons.home_rounded,
-                      label: 'Inicio',
-                      selected: currentIndex == 0,
-                      reduceMotion: reduceMotion,
-                      onTap: () => context.go('/home'),
-                    ),
-                  ),
-                  Expanded(
-                    child: _NavItem(
-                      icon: Icons.assignment_rounded,
-                      label: 'Pedidos',
-                      selected: currentIndex == 1,
-                      reduceMotion: reduceMotion,
-                      onTap: () => context.go('/deliveries'),
-                    ),
-                  ),
-                  Expanded(
-                    child: _NavItem(
-                      icon: Icons.person_rounded,
-                      label: 'Perfil',
-                      selected: currentIndex == 2,
-                      reduceMotion: reduceMotion,
-                      onTap: () => context.go('/profile'),
-                    ),
-                  ),
-                  Expanded(
-                    child: _NavItem(
-                      icon: Icons.settings_rounded,
-                      label: 'Config',
-                      selected: currentIndex == 3,
-                      reduceMotion: reduceMotion,
-                      onTap: () => context.go('/settings'),
-                    ),
-                  ),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 7, 8, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.home_rounded,
+                  label: 'Inicio',
+                  selected: currentIndex == 0,
+                  reduceMotion: reduceMotion,
+                  onTap: () => context.go('/home'),
+                ),
               ),
-            ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.assignment_rounded,
+                  label: 'Pedidos',
+                  selected: currentIndex == 1,
+                  reduceMotion: reduceMotion,
+                  onTap: () => context.go('/deliveries'),
+                ),
+              ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.person_rounded,
+                  label: 'Perfil',
+                  selected: currentIndex == 2,
+                  reduceMotion: reduceMotion,
+                  onTap: () => context.go('/profile'),
+                ),
+              ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.settings_rounded,
+                  label: 'Config',
+                  selected: currentIndex == 3,
+                  reduceMotion: reduceMotion,
+                  onTap: () => context.go('/settings'),
+                ),
+              ),
+            ],
           ),
         ),
       ),
