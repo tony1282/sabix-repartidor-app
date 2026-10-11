@@ -7,6 +7,7 @@ import '../../../core/utils/validators.dart';
 import '../../../core/config/app_colors.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/no_internet_widget.dart';
+import '../../widgets/responsive_content.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/connectivity_provider.dart';
@@ -66,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.textWhite,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_rounded),
             onPressed: () => context.go('/login'),
             tooltip: 'Volver al inicio de sesión',
           ),
@@ -96,12 +97,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
             }
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(AppConstants.spacingXXL),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: ResponsiveContent(
+                maxWidth: 640,
+                padding: EdgeInsets.all(
+                  MediaQuery.sizeOf(context).width < 380
+                      ? 18
+                      : AppConstants.spacingXXL,
+                ),
+                child: FadeSlideIn(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                     // Logo
                     Center(
                       child: Container(
@@ -325,7 +334,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ],
                     ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
               ),
             );
