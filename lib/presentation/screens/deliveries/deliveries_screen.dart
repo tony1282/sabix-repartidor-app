@@ -124,7 +124,7 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
                   itemBuilder: (context, index) {
                     return FadeSlideIn(
                       duration: Duration(
-                        milliseconds: 300 + (index.clamp(0, 4) * 60),
+                        milliseconds: 300 + (index.clamp(0, 4).toInt() * 60),
                       ),
                       child: _OrderCard(order: orders[index]),
                     );
