@@ -5,6 +5,7 @@ import 'package:sabix_repartidor_app/data/repositories/chat_repository_impl.dart
     show ChatRepositoryImpl;
 import '../../widgets/loading_widget.dart';
 import '../../widgets/error_widget.dart';
+import '../../widgets/responsive_content.dart';
 import '../../../core/config/app_colors.dart';
 import '../../../domain/entities/order_entity.dart';
 import '../../../core/providers/delivery_provider.dart';
@@ -48,7 +49,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
             ),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_rounded),
             // ✅ Botón de retroceso → pedidos asignados
             onPressed: () => context.go('/deliveries'),
             tooltip: 'Volver a pedidos',
@@ -81,7 +82,13 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
               return const Center(child: Text('No se encontró el pedido'));
             }
 
-            return _OrderDetailContent(order: order);
+            return ResponsiveContent(
+              maxWidth: 820,
+              padding: EdgeInsets.zero,
+              child: FadeSlideIn(
+                child: _OrderDetailContent(order: order),
+              ),
+            );
           },
         ),
       ),
