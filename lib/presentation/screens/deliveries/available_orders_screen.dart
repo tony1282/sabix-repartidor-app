@@ -112,7 +112,7 @@ class _AvailableOrdersScreenState extends State<AvailableOrdersScreen> {
                     final order = provider.availableOrders[index];
                     return FadeSlideIn(
                       duration: Duration(
-                        milliseconds: 300 + (index.clamp(0, 4) * 60),
+                        milliseconds: 300 + (index.clamp(0, 4).toInt() * 60),
                       ),
                       child: _AvailableOrderCard(order: order),
                     );
