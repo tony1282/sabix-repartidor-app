@@ -103,8 +103,11 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         ],
       ),
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: Column(
+            children: [
           if (room.typingUsernames.isNotEmpty)
             Container(
               width: double.infinity,
@@ -144,12 +147,14 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     ),
                   ),
           ),
-          ChatInput(
-            enabled: !isClosed,
-            onSend: (text) => room.send(text),
-            onTyping: room.onUserTyping,
+              ChatInput(
+                enabled: !isClosed,
+                onSend: (text) => room.send(text),
+                onTyping: room.onUserTyping,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     ),
     );
