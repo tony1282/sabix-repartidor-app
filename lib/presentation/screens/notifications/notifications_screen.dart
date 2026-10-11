@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/error_widget.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/responsive_content.dart';
 import '../../../core/config/app_colors.dart';
 import '../../../domain/entities/notification_entity.dart';
 import '../../../core/providers/notification_provider.dart';
@@ -90,26 +91,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             }
 
             if (provider.notifications.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.notifications_off_rounded,
-                      size: 80,
-                      color: Colors.grey.shade400,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'No tienes notificaciones',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Las notificaciones aparecerán aquí',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
+              return const ResponsiveContent(
+                maxWidth: 520,
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(24),
+                child: FadeSlideIn(
+                  child: _EmptyNotificationsState(),
                 ),
               );
             }
@@ -119,18 +106,31 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 provider.loadNotifications(refresh: true);
                 provider.loadUnreadCount();
               },
-              child: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                itemCount: provider.notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = provider.notifications[index];
-                  return _NotificationCard(
-                    notification: notification,
-                    onTap: () => _handleNotificationTap(context, notification),
-                    onDelete: () =>
-                        _deleteNotification(context, notification.id),
-                  );
-                },
+              child: ResponsiveContent(
+                maxWidth: 780,
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  itemCount: provider.notifications.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final notification = provider.notifications[index];
+                    return FadeSlideIn(
+                      duration: Duration(
+                        milliseconds:
+                            300 + (index.clamp(0, 4).toInt() * 60),
+                      ),
+                      child: _NotificationCard(
+                        notification: notification,
+                        onTap: () =>
+                            _handleNotificationTap(context, notification),
+                        onDelete: () =>
+                            _deleteNotification(context, notification.id),
+                      ),
+                    );
+                  },
+                ),
               ),
             );
           },
@@ -233,8 +233,70 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 }
 
+class _EmptyNotificationsState extends StatelessWidget {
+  const _EmptyNotificationsState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(24, 30, 24, 26),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.cardShadow,
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.notifications_none_rounded,
+              size: 38,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 18),
+          const Text(
+            'No tienes notificaciones',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Cuando haya novedades sobre tus pedidos apareceran aqui.',
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.45,
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ============================================
-// TARJETA DE NOTIFICACIÓN (MEJORADA)
+// TARJETA DE NOTIFICACIÓN
 // ============================================
 class _NotificationCard extends StatelessWidget {
   final NotificationEntity notification;
@@ -253,12 +315,11 @@ class _NotificationCard extends StatelessWidget {
     final bool isUnread = !notification.isRead;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isUnread ? priorityColor.withOpacity(0.35) : AppColors.border,
+          color: isUnread ? priorityColor.withOpacity(0.28) : AppColors.borderLight,
           width: isUnread ? 1.5 : 1,
         ),
         boxShadow: [
