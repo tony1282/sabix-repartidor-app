@@ -1,3 +1,4 @@
+import 'dart:convert';
 // lib/core/network/api_client.dart
 import 'package:dio/dio.dart';
 import 'api_endpoints.dart';
@@ -73,7 +74,45 @@ class ApiClient {
               data: {'refresh': refreshToken},
             );
             if (response.statusCode == 200) {
-              final newToken = response.data['access'];
+              final rawData = response.data;
+
+              dynamic parsedData = rawData;
+              if (rawData is String) {
+                try {
+                  parsedData = jsonDecode(rawData);
+                } catch (_) {
+                  parsedData = rawData;
+                }
+              }
+
+              String? newToken;
+
+              if (parsedData is Map) {
+                final responseData =
+                    parsedData['data'] ?? parsedData['result'] ?? parsedData;
+
+                if (responseData is Map) {
+                  final tokenValue =
+                      responseData['access'] ?? responseData['token'];
+                  if (tokenValue != null) {
+                    newToken = tokenValue.toString();
+                  }
+                }
+              } else if (parsedData is String && parsedData.isNotEmpty) {
+                // Compatibilidad con backends que devuelven directamente
+                // el access token como texto.
+                newToken = parsedData;
+              }
+
+              if (newToken == null || newToken.isEmpty) {
+                print(
+                  '❌ La respuesta de refresh no contiene un access token válido: '
+                  '$rawData',
+                );
+                await LocalStorageService().clearAll();
+                return handler.next(error);
+              }
+
               await LocalStorageService().saveToken(newToken);
               print('✅ Token refrescado correctamente');
 
