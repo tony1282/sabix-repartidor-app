@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/config/app_colors.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/responsive_content.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -30,10 +31,13 @@ class SettingsScreen extends StatelessWidget {
         bottomNavigationBar: const AppBottomNav(currentIndex: 3),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child: ResponsiveContent(
+              maxWidth: 680,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+              child: FadeSlideIn(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                 const Text(
                   'General',
                   style: TextStyle(
@@ -155,7 +159,9 @@ class _SettingsTile extends StatelessWidget {
                     color: AppColors.textSecondary,
                     size: 20,
                   ),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
         ),
