@@ -297,7 +297,6 @@ class AppTheme {
       ),
       behavior: SnackBarBehavior.floating,
       elevation: 6,
-      insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
     ),
     
     // ===== BADGE =====
