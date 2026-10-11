@@ -7,6 +7,7 @@ import '../../../core/utils/validators.dart';
 import '../../../core/config/app_colors.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/no_internet_widget.dart';
+import '../../widgets/responsive_content.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/connectivity_provider.dart';
@@ -57,12 +58,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
           return SafeArea(
             child: SingleChildScrollView(
-              child: Column(
-                children: [
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: ResponsiveContent(
+                maxWidth: 560,
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: FadeSlideIn(
+                  child: Column(
+                    children: [
                   // Header con gradiente
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(24, 48, 24, 40),
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      MediaQuery.sizeOf(context).height < 700 ? 30 : 48,
+                      24,
+                      MediaQuery.sizeOf(context).height < 700 ? 28 : 40,
+                    ),
                     decoration: const BoxDecoration(
                       gradient: AppColors.primaryGradient,
                       borderRadius: BorderRadius.vertical(
@@ -119,7 +130,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Formulario
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                    padding: EdgeInsets.fromLTRB(
+                      MediaQuery.sizeOf(context).width < 380 ? 18 : 24,
+                      32,
+                      MediaQuery.sizeOf(context).width < 380 ? 18 : 24,
+                      24,
+                    ),
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -179,7 +195,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
           );
